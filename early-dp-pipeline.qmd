@@ -1,0 +1,72 @@
+---
+title: "Differential Privacy in a Clinical Setting"
+author: "Ahmet Akkoc"
+format: pptx
+editor: visual
+jupyter: ir
+---
+
+## **Outline**
+
+-   Patient Data Confidentiality: Dilemma or Opportunity?
+
+-   What is Differential Privacy?
+
+-   Benefits of Differential Privacy
+
+-   Challenges of Differential Privacy in a Clinical Setting
+
+## Patient Data Confidentiality
+
+**Patient data confidentiality** is the ethical and legal obligation to protect patient information.
+
+-   This data includes **medical records**, **test results**, and **personal information**
+
+-   It is a continuous process involving **access control authorization** and **encryption**.
+
+## **Risks of Having Weak Patient Data Confidentiality**
+
+-   **Identity theft** and **fraud**
+
+-   **Privacy violations**
+
+-   **Financial losses**
+
+-   **Potentially illegal**
+
+Clearly, we always want to have some level of confidentiality. But...
+
+## **Limits of a Closed Research Environment**
+
+**Data Confidentiality** puts the researcher into a **closed research environment**. A **closed environment** brings several serious caveats.
+
+-   **Limited access** to resources and data
+
+-   **Restricted collaboration** with external experts
+
+-   **Difficult to replicate** results
+
+    ![](img/researcher.jpg){fig-align="right"}
+
+## **What is Differential Privacy?**
+
+Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+
+## Bullets
+
+When you click the **Render** button a document will be generated that includes:
+
+-   Content authored with markdown
+-   Output from executable code
+
+## Code
+
+When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{R}
+1 + 1
+```
+
+```{r}
+1 + 1
+```
