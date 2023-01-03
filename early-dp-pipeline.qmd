@@ -10,9 +10,7 @@ jupyter: ir
 
 -   Patient Data Confidentiality: Dilemma or Opportunity?
 
--   What is Differential Privacy?
-
--   Benefits of Differential Privacy
+-   Differential Privacy: The Great Arbiter
 
 -   Challenges of Differential Privacy in a Clinical Setting
 
@@ -50,23 +48,72 @@ Clearly, we always want to have some level of confidentiality. But...
 
 ## **What is Differential Privacy?**
 
-Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+## **Method Goes Here**
 
-## Bullets
+```{r}
+# Libraries
+library('diffpriv')
+library(tidyverse) #Standard for Data Science
+library(tidymodels) #tidyverse extension
 
-When you click the **Render** button a document will be generated that includes:
+# Loading Data
+load('data/sample.rdata')
+DF_Biobank <- as_tibble(johan_dt_relevant_biobank_anon)
+head(DF_Biobank)
+```
 
--   Content authored with markdown
--   Output from executable code
+```{r}
+# Preprocessing
+
+# FILL IN NAs
+DF_Biobank[DF_Biobank==""]<-NA
+
+# 
+
+# Column Selection
+
+# Too many columns,
+# select the ones we want
+
+baselineCovariates <- c('antiCCP', 'current_smoker_latest',
+       'sjc28_m0', 'tjc28_m0','pga_m0', 'crp_m0','ega_m0','pain_m0',
+        'sex','erosive_status_baseline','haq_m0','fatigue_m0',
+        'age',
+        'Igm_rf')
+
+    
+targetOutcomes <- c('sdai_remission_m6broad')
+
+convert_to_boolean <- c('sdai_remission_m6broad')
+convert_to_double <- c('age','sjc28_m0','tjc28_m0','pga_m0','crp_m0','ega_m0','pain_m0','haq_m0','fatigue_m0')
+convert_to_int <- c()
+convert_to_factor <- c('antiCCP','current_smoker_latest',
+                       'sex','erosive_status_baseline',
+                       'Igm_rf')
+
+
+neededColumns <- union(baselineCovariates, targetOutcomes)
+neededColumns
+
+# Type Conversion
+DF_Biobank[convert_to_double] <- lapply(DF_Biobank[convert_to_double], as.double)
+DF_Biobank[convert_to_factor] <- lapply(DF_Biobank[convert_to_factor], as.factor)
+DF_Biobank[convert_to_int] <- lapply(DF_Biobank[convert_to_int], as.integer)
+
+#Some implementations prefer factors to logicals
+DF_Biobank[convert_to_boolean] <- lapply(DF_Biobank[convert_to_boolean], as.factor)
+```
 
 ## Code
 
 When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
 
 ```{R}
+# Show code
 1 + 1
 ```
 
 ```{r}
+# Evaluate code
 1 + 1
 ```
