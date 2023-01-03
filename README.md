@@ -1,2 +1,2 @@
-# differential-privacy-clinic-setting
-Differential Privacy Project
+# clinical-differential-privacy-project
+Differential Privacy Project in R
