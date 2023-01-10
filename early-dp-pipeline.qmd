@@ -45,6 +45,13 @@ Clearly, we always want to have some level of confidentiality. But...
 -   **Difficult to replicate** results
 
     ![](img/researcher.jpg){fig-align="right"}
+    
+## **Limits of a Closed Research Environment**
+
+Our own Bente Glintborg is working on a narrative paper highly relevant to closed-research environment limitations:
+
+* Legal and data-protection obstacles jeopardize patient interests in personalised medicine’s
+research: Experiences from a Nordic collaborative study within rheumatoid arthritis
 
 ## **What is Differential Privacy?**
 
