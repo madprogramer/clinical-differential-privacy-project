@@ -55,18 +55,30 @@ research: Experiences from a Nordic collaborative study within rheumatoid arthri
 
 ## **What is Differential Privacy?**
 
-## **Method Goes Here**
+## **Differential Privacy in Our Lives**
+
+Google uses differential privacy is in its Google Maps service. When users of Google Maps search for a location or request directions, the service collects data about their location and the location they are searching for. (Keyword suggestion on Android Keyboard, smart-highlighting words on top-left says "Map", "Define" etc. with DP and FL)
+
+This data is then used to improve the accuracy and functionality of the service. In order to protect the privacy of its users, Google adds noise or perturbation to the data in a controlled way, using techniques from differential privacy.
+
+This helps to ensure that the privacy of individual data points is protected, while still allowing the data to be used for statistical analysis and decision-making.
+
+## Example Patient Dataset
 
 ```{r}
 # Libraries
-library('diffpriv')
+library(diffpriv) #diffpriv
 library(tidyverse) #Standard for Data Science
 library(tidymodels) #tidyverse extension
+library(survival) #survival analysis
 
 # Loading Data
 load('data/sample.rdata')
 DF_Biobank <- as_tibble(johan_dt_relevant_biobank_anon)
-head(DF_Biobank)
+
+print(
+paste('Patients in Dataset: ',dim(DF_Biobank)[1],'Columns per patient: ',dim(DF_Biobank)[2]))
+
 ```
 
 ```{r}
@@ -89,9 +101,14 @@ baselineCovariates <- c('antiCCP', 'current_smoker_latest',
         'Igm_rf')
 
     
-targetOutcomes <- c('sdai_remission_m6broad')
+targetOutcomes <- c(
+  'sdai_remission_m0',
+  'sdai_remission_m3',
+  'sdai_remission_m6broad',
+  'sdai_remission_m12'
+)
 
-convert_to_boolean <- c('sdai_remission_m6broad')
+convert_to_boolean <- targetOutcomes
 convert_to_double <- c('age','sjc28_m0','tjc28_m0','pga_m0','crp_m0','ega_m0','pain_m0','haq_m0','fatigue_m0')
 convert_to_int <- c()
 convert_to_factor <- c('antiCCP','current_smoker_latest',
@@ -99,8 +116,8 @@ convert_to_factor <- c('antiCCP','current_smoker_latest',
                        'Igm_rf')
 
 
+
 neededColumns <- union(baselineCovariates, targetOutcomes)
-neededColumns
 
 # Type Conversion
 DF_Biobank[convert_to_double] <- lapply(DF_Biobank[convert_to_double], as.double)
@@ -109,6 +126,129 @@ DF_Biobank[convert_to_int] <- lapply(DF_Biobank[convert_to_int], as.integer)
 
 #Some implementations prefer factors to logicals
 DF_Biobank[convert_to_boolean] <- lapply(DF_Biobank[convert_to_boolean], as.factor)
+
+print('Some patient attributes:')
+print(neededColumns)
+
+print('Potentially age is sensitive:')
+print(neededColumns)
+```
+
+## Differential Privacy in Action
+
+```{R}
+f <- function(X) mean(X$age,na.rm=TRUE) ##  f is our target function (mean age in the dataset)
+```
+
+```{r}
+f <- function(X) mean(X$age,na.rm=TRUE) ## f is our target function (mean age in the dataset)
+```
+
+## Differential Privacy in Action
+
+```{R}
+
+D <- (DF_Biobank) ## We define our confidential dataset as D
+n <- nrow(D)      ## Patient count
+
+mechanism <- DPMechLaplace(target = f, sensitivity = 80/n, dims = 1)
+## We need to pick a noise mechanism based on sensitive attribute (age) in the dataset
+## Age is continuous (decimal precision) so we use add Laplace noise
+
+pparams <- DPParamsEps(epsilon = 1)
+## epsilon is a constant we use to make the resulting data more probable.
+## Higher epsilon means more precision, but lower privacy.
+## Lower epsilon means less precision, but higher privacy.
+```
+
+```{r}
+
+D <- (DF_Biobank) ## We define our confidential dataset as D
+n <- nrow(D)      ## Patient count
+
+mechanism <- DPMechLaplace(target = f, sensitivity = 80/n, dims = 1)
+## We need to pick a noise mechanism based on sensitive attribute (age) in the dataset
+## Age is continuous (decimal precision) so we use add Laplace noise
+
+pparams <- DPParamsEps(epsilon = 1)
+## epsilon is a constant we use to make the resulting data more probable.
+## Higher epsilon means more precision, but lower privacy.
+## Lower epsilon means less precision, but higher privacy.
+```
+
+## Differential Privacy in Action
+
+```{R}
+r <- releaseResponse(mechanism, privacyParams = pparams, X = D)
+
+cat("DP response r$response:", r$response,
+"\nTrue response f(D): ", f(D))
+```
+
+```{r}
+r <- releaseResponse(mechanism, privacyParams = pparams, X = D)
+
+cat("DP response r$response:", r$response,
+"\nTrue response f(D): ", f(D))
+```
+
+## Differential Privacy in Action (SKIP)
+
+```{r}
+f <- function(X) c(mean(X$age,na.rm=TRUE),mean(X$crp_m0,na.rm=TRUE)) ## target function
+
+D <- (DF_Biobank)
+
+# NOTE! Age sensitivity would require knowledge of maximum and minimum age. OR using a hypothetical range? Overestimating the range will lead to a higher noise ratio. Think like YouTube videos with low views, sensitivity can drop as more data is collected.
+
+# NOTE! Also be more careful with CRP because the range is definitely more than (0,1) OR using a hypothetical range? 
+
+n<-nrow(DF_Biobank)  ## dataset size
+n
+#n <- 100
+
+mechanism <- DPMechLaplace(target = f, sensitivity = 80/n, dims = 1)
+#D <- runif(n, min = 0, max = 1) ## the sensitive database in [0,1]^n
+pparams <- DPParamsEps(epsilon = 1) ## desired privacy budget
+
+# TODO: How do we tune epsilon? Consider your utility constraints (i.e. bias).
+
+r <- releaseResponse(mechanism, privacyParams = pparams, X = D)
+cat("Private response r$response:", r$response,
+"\nNon-private response f(D): ", f(D))
+```
+
+## Differential Privacy (under the hood)
+
+```{r}
+f <- function(X) X$age  ## identity
+
+D <- (head(DF_Biobank)) ##
+
+n<-nrow(D)  ## dataset size
+
+mechanism <- DPMechLaplace(target = f, sensitivity = 80/n, dims = 1)
+pparams <- DPParamsEps(epsilon = 1)
+
+r <- releaseResponse(mechanism, privacyParams = pparams, X = D)
+
+cat("Private response r$response:", r$response,
+"\nNon-private response f(D): ", f(D))
+VISDAT <- data.frame(
+  truth <- f(D),
+  priv <- r$response
+)
+
+#print(VISDAT)
+
+#ggplot(VISDAT, aes(truth, y = ..density..,fill="truth")) + 
+#geom_histogram(alpha = 0.5,  position = 'identity')#+ 
+#geom_histogram(data=VISDAT, aes(fill="priv"), 
+#                 alpha = 0.5, position = 'identity')+xlim(0,12)
+
+par(mfrow=c(1,2)) 
+plot(VISDAT$truth)
+plot(VISDAT$priv)
 ```
 
 ## Code
