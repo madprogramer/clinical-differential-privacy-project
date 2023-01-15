@@ -12,7 +12,7 @@ jupyter: ir
 
 -   Differential Privacy: The Great Arbiter
 
--   Challenges of Differential Privacy in a Clinical Setting
+-   Differential Privacy in a Clinical Setting: Pros and Cons
 
 ## Patient Data Confidentiality
 
@@ -45,25 +45,30 @@ Clearly, we always want to have some level of confidentiality. But...
 -   **Difficult to replicate** results
 
     ![](img/researcher.jpg){fig-align="right"}
-    
+
 ## **Limits of a Closed Research Environment**
 
 Our own Bente Glintborg is working on a narrative paper highly relevant to closed-research environment limitations:
 
-* Legal and data-protection obstacles jeopardize patient interests in personalised medicine’s
-research: Experiences from a Nordic collaborative study within rheumatoid arthritis
+-   Legal and data-protection obstacles jeopardize patient interests in personalised medicine's research: Experiences from a Nordic collaborative study within rheumatoid arthritis
 
-## **What is Differential Privacy?**
+## **What is Differential Privacy**
+
+Differential Privacy means to add a level of uncertainty to the data, especially sensitive data. The goal is to make identifying sensitive information more difficult.
+
+DP is usually accomplished by taking the original values in a dataset and adding random noise. This way every patient gains plausible deniability on their data, but aggregate results will remain relatively unchanged.
 
 ## **Differential Privacy in Our Lives**
 
-Google uses differential privacy is in its Google Maps service. When users of Google Maps search for a location or request directions, the service collects data about their location and the location they are searching for. (Keyword suggestion on Android Keyboard, smart-highlighting words on top-left says "Map", "Define" etc. with DP and FL)
+Google uses differential privacy is in its Google Maps service. When users of Google Maps search for a location or request directions, the service collects data about their location and the location they are searching for. DP perturbs the reported location to make sure it isn't the user's true location.
 
-This data is then used to improve the accuracy and functionality of the service. In order to protect the privacy of its users, Google adds noise or perturbation to the data in a controlled way, using techniques from differential privacy.
+<!--# (Also: keyword suggestion on Android Keyboard, smart-highlighting words on top-left says "Map", "Define" etc. with DP and FL) -->
 
-This helps to ensure that the privacy of individual data points is protected, while still allowing the data to be used for statistical analysis and decision-making.
+![](img/map-example.png){fig-align="center"}
 
-## Example Patient Dataset
+This helps to ensure that the privacy of individual data points is protected, while still allowing the location data to be used for statistical analysis and decision-making.
+
+## Let's Take an Example Patient Dataset
 
 ```{r}
 # Libraries
@@ -71,6 +76,8 @@ library(diffpriv) #diffpriv
 library(tidyverse) #Standard for Data Science
 library(tidymodels) #tidyverse extension
 library(survival) #survival analysis
+library(dplyr)
+library(tidyr)
 
 # Loading Data
 load('data/sample.rdata')
@@ -102,14 +109,22 @@ baselineCovariates <- c('antiCCP', 'current_smoker_latest',
 
     
 targetOutcomes <- c(
-  'sdai_remission_m0',
-  'sdai_remission_m3',
-  'sdai_remission_m6broad',
-  'sdai_remission_m12'
+  #'sdai_remission_m0',
+  #'sdai_remission_m3',
+  #'sdai_remission_m6broad',
+  #'sdai_remission_m12'
+  'sdai_m0',
+  'sdai_m3',
+  'sdai_m6',
+  'sdai_m12'
 )
 
 convert_to_boolean <- targetOutcomes
-convert_to_double <- c('age','sjc28_m0','tjc28_m0','pga_m0','crp_m0','ega_m0','pain_m0','haq_m0','fatigue_m0')
+convert_to_double <- c('age','sjc28_m0','tjc28_m0','pga_m0','crp_m0','ega_m0','pain_m0','haq_m0','fatigue_m0',
+  'sdai_m0',
+  'sdai_m3',
+  'sdai_m6',
+  'sdai_m12')
 convert_to_int <- c()
 convert_to_factor <- c('antiCCP','current_smoker_latest',
                        'sex','erosive_status_baseline',
@@ -130,14 +145,70 @@ DF_Biobank[convert_to_boolean] <- lapply(DF_Biobank[convert_to_boolean], as.fact
 print('Some patient attributes:')
 print(neededColumns)
 
-print('Potentially age is sensitive:')
-print(neededColumns)
+#print('Potentially age is sensitive:')
+```
+
+## In this Dataset, Age is Potentially Sensitive
+
+```{r}
+head(DF_Biobank['age'])
+```
+
+```{R}
+head(DF_Biobank['age'])
+# In this dataset, age is stored as a real number (with digits)
+# And can be reverse-engineered to find the patient's birthday
+
+# Many celebrity birthdays are well-known
+# F.x. Alicia Vikander born 3 October, 1988
+# is 34.3123 years old, or 12524 days.
+```
+
+## Differential Privacy: Under the Surface
+
+```{r}
+f <- function(X) X$age  ## identity
+
+D <- (head(DF_Biobank)) ##
+
+n<-nrow(D)  ## dataset size
+
+mechanism <- DPMechLaplace(target = f, sensitivity = 80/n, dims = 1)
+pparams <- DPParamsEps(epsilon = 1.25)
+
+r <- releaseResponse(mechanism, privacyParams = pparams, X = D)
+
+cat("Private response r$response:", r$response,
+"\nNon-private response f(D): ", f(D))
+VISDAT <- data.frame(
+  id <- 1:nrow(D),
+  original <- f(D),
+  privatized <- r$response
+)
+
+#print(VISDAT)
+
+#ggplot(VISDAT, aes(truth, y = ..density..,fill="truth")) + 
+#geom_histogram(alpha = 0.5,  position = 'identity')#+ 
+#geom_histogram(data=VISDAT, aes(fill="priv"), 
+#                 alpha = 0.5, position = 'identity')+xlim(0,12)
+
+#par(mfrow=c(1,2)) 
+#plot(VISDAT$truth)
+#plot(VISDAT$priv)
+
+ggplot(data = VISDAT, aes(x = id)) +
+  geom_point(aes(color='Data before',y=original)) +
+  geom_segment( aes(color='Data before',x=id, xend=id, y=0, yend=original))+
+  geom_point(aes(color='DP-altered data',y=privatized)) + 
+  geom_segment( aes(color='DP-altered data',x=id, xend=id, y=0, yend=privatized))+
+  ylab("Age") + xlab("Patient ID") + theme_bw()
 ```
 
 ## Differential Privacy in Action
 
 ```{R}
-f <- function(X) mean(X$age,na.rm=TRUE) ##  f is our target function (mean age in the dataset)
+f <- function(X) mean(X$age,na.rm=TRUE) ##  STEP 1: f is our target function (mean age in the dataset)
 ```
 
 ```{r}
@@ -148,14 +219,16 @@ f <- function(X) mean(X$age,na.rm=TRUE) ## f is our target function (mean age in
 
 ```{R}
 
-D <- (DF_Biobank) ## We define our confidential dataset as D
-n <- nrow(D)      ## Patient count
+D <- (DF_Biobank) ## STEP 2: We define our confidential dataset as D
+n <- nrow(D)      ## Take the patient count
 
 mechanism <- DPMechLaplace(target = f, sensitivity = 80/n, dims = 1)
+## STEP 3: 
 ## We need to pick a noise mechanism based on sensitive attribute (age) in the dataset
 ## Age is continuous (decimal precision) so we use add Laplace noise
 
-pparams <- DPParamsEps(epsilon = 1)
+pparams <- DPParamsEps(epsilon = 1.25)
+## STEP 4: 
 ## epsilon is a constant we use to make the resulting data more probable.
 ## Higher epsilon means more precision, but lower privacy.
 ## Lower epsilon means less precision, but higher privacy.
@@ -180,9 +253,12 @@ pparams <- DPParamsEps(epsilon = 1)
 
 ```{R}
 r <- releaseResponse(mechanism, privacyParams = pparams, X = D)
+## STEP 5: We apply the DP mechanism with the given params to dataset D
 
 cat("DP response r$response:", r$response,
 "\nTrue response f(D): ", f(D))
+## Here, you can see a comparison of the DP response and the real f(D), mean age.
+
 ```
 
 ```{r}
@@ -218,25 +294,33 @@ cat("Private response r$response:", r$response,
 "\nNon-private response f(D): ", f(D))
 ```
 
-## Differential Privacy (under the hood)
+## Differential Privacy at different levels
 
 ```{r}
 f <- function(X) X$age  ## identity
 
-D <- (head(DF_Biobank)) ##
+D <- (head(DF_Biobank,n=10)  ) ##
+#D <- DF_Biobank ##
 
 n<-nrow(D)  ## dataset size
 
 mechanism <- DPMechLaplace(target = f, sensitivity = 80/n, dims = 1)
-pparams <- DPParamsEps(epsilon = 1)
+pparams1 <- DPParamsEps(epsilon = 1.12)
+pparams2 <- DPParamsEps(epsilon = 1.25)
+pparams3 <- DPParamsEps(epsilon = 3)
 
-r <- releaseResponse(mechanism, privacyParams = pparams, X = D)
+r1 <- releaseResponse(mechanism, privacyParams = pparams1, X = D)
+r2 <- releaseResponse(mechanism, privacyParams = pparams2, X = D)
+r3 <- releaseResponse(mechanism, privacyParams = pparams3, X = D)
 
-cat("Private response r$response:", r$response,
-"\nNon-private response f(D): ", f(D))
+#cat("Private response r$response:", r$response,
+#"\nNon-private response f(D): ", f(D))
 VISDAT <- data.frame(
+  id <- 1:nrow(D),
   truth <- f(D),
-  priv <- r$response
+  far <- r1$response,
+  mid <- r2$response,
+  close <- r3$response
 )
 
 #print(VISDAT)
@@ -246,21 +330,134 @@ VISDAT <- data.frame(
 #geom_histogram(data=VISDAT, aes(fill="priv"), 
 #                 alpha = 0.5, position = 'identity')+xlim(0,12)
 
-par(mfrow=c(1,2)) 
-plot(VISDAT$truth)
-plot(VISDAT$priv)
+#par(mfrow=c(1,4)) 
+#plot(VISDAT$far)
+#plot(VISDAT$mid)
+#plot(VISDAT$close)
+#plot(VISDAT$truth)
+
+ggplot(data = VISDAT, aes(x = id)) +
+  geom_point(aes(color='Without DP',y=truth), size=4, shape=23) +
+  #geom_segment( aes(color='Without DP',x=id, xend=id, y=0, yend=truth))+
+  geom_point(aes(color='DP (epsilon = 100)',y=close)) +
+  geom_segment( aes(color='DP (epsilon = 100)',x=id, xend=id, y=truth, yend=close))+
+  geom_point(aes(color='DP (epsilon = 1.25)',y=mid)) + 
+  geom_segment( aes(color='DP (epsilon = 1.25)',x=id, xend=id, y=truth, yend=mid))+
+  geom_point(aes(color='DP (epsilon = 1.12)',y=far)) +
+  geom_segment( aes(color='DP (epsilon = 1.12)',x=id, xend=id, y=truth, yend=far))+
+  ylab("Age") + xlab("Patient ID") + theme_bw()
 ```
 
-## Code
-
-When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{R}
-# Show code
-1 + 1
-```
+## Can we fit a regression curve?
 
 ```{r}
-# Evaluate code
-1 + 1
+f <- function(X) X$age  ## identity
+
+#D <- (head(DF_Biobank,n=10)  ) ##
+D <- DF_Biobank ##
+D <- select(D, neededColumns)
+D <- na.omit(D)
+D <- head(D,n=100)
+
+n<-nrow(D)  ## dataset size
+
+mechanism <- DPMechLaplace(target = f, sensitivity = 80/n, dims = 1)
+pparams1 <- DPParamsEps(epsilon = 1.12)
+pparams2 <- DPParamsEps(epsilon = 1.25)
+pparams3 <- DPParamsEps(epsilon = 3)
+
+r1 <- releaseResponse(mechanism, privacyParams = pparams1, X = D)
+r2 <- releaseResponse(mechanism, privacyParams = pparams2, X = D)
+r3 <- releaseResponse(mechanism, privacyParams = pparams3, X = D)
+
+#cat("Private response r$response:", r$response,
+#"\nNon-private response f(D): ", f(D))
+
+a <- data.frame(
+  id = 1:nrow(D),
+  label = "True",
+  age = f(D),
+  #far <- r1$response,
+  #mid <- r2$response,
+  #close <- r3$response,
+  outcome = as.double(D$sdai_m12)
+  )
+
+b <- data.frame(
+  id = 1:nrow(D),
+  label = "with DP (epsilon=1.25)",
+  #far <- r1$response,
+  age = r2$response,
+  #close <- r3$response,
+  outcome = as.double(D$sdai_m12)
+  )
+
+VISDAT <- rbind.data.frame(a,b) 
+#print(head(VISDAT))
+
+#aes('Without DP',x=outcome, y=truth)
+
+ggplot(VISDAT, aes(x=age, y=outcome, color=label)) +
+  geom_point() + 
+  geom_smooth(method=lm) + 
+  ylab("SDAI") + xlab("age") + theme_bw()
+
+print(cor(x=a$age, y=a$outcome))
+print(cor(x=b$age, y=b$outcome))
+
+#VISDAT$outcome
+
 ```
+
+## Differential Privacy in a Clinical Setting: Pros and Cons
+
+## Pros: The Benefits of DP
+
+-   Data can be shared more openly
+
+-   Can now repeat **previous experiments** on a DP-version of research dataset
+
+-   Easier approvals for **cross-organizational** and even **cross-border** data transfer from legal authorities...
+
+-   Working **many-to-many**
+
+-   Can be used to mitigate biases in decision making.
+
+## **Cons: The Challenges of Differential Privacy in a Clinical Setting**
+
+-   Not a lot of people know about DP.
+
+    -   It has been used by technology companies for considerably longer
+
+-   The perturbation of data can seem like a scary idea.
+
+    -   It does mean sacrificing some accuracy, but as you have seen results are often very realistic.
+
+## **More about the long-term goals here**
+
+-   For now, the work is only tangential to ScandRA.
+
+-   It is mainly part of an ongoing thesis project at ITU Copenhagen.
+
+    -   We are interested in examining the trade-offs related to different forms of differential privacy.
+
+    -   How does DP impact the ability to perform accurate statistics?
+
+    -   How can DP reduce selection bias due to cohort inclusion, or how it can introduce problems of over-generalization?
+
+## **How you can help!**
+
+-   More data means, epsilon needs to be less extreme.
+
+    -   As usual, more data means more statistical power.
+
+```{=html}
+<!-- -->
+```
+-   *Would you also be interested in participating?*
+
+    -   Currently only data from Denmark.
+
+    -   But it might be nice if out partners from Sweden and Norway may also want to get involved :)
+
+\
