@@ -70,3 +70,4 @@ Differential Privacy Project in R
 
 ## More Reading:
 * [The Algorithmic Foundations of Differential Privacy](https://www.cis.upenn.edu/~aaroth/Papers/privacybook.pdf)
+* Potentially relevant dataset, PAD-UFES-20: a skin lesion dataset composed of patient data and clinical images collected from smartphones https://data.mendeley.com/datasets/zr7vgbcyr2/1
