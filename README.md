@@ -12,9 +12,9 @@ Differential Privacy Project in R
 
 ### Project Title: Studying the Suitability of Differential Privacy for Biostatistics
 
-### Description: Epidemiology helps many clinicians and researchers to understand the distribution, patterns and determinants of health and disease conditions. However, a challenge exists in the form of patient data confidenciality (PDC). PDC means limited access to resources and data and difficulty in replicating results. Differential Privacy can remedy this, by making data less identifyable. This thesis will explore the different considerations needed to introduce Differential Privacy for Biostatistics.  
+### Description: Epidemiology helps many clinicians and researchers to understand the distribution, patterns and determinants of health and disease conditions. However, a challenge exists in the form of patient data confidenciality (PDC). PDC means limited access to resources and data and difficulty in replicating results. Differential Privacy can remedy this, by making data less identifyable. This thesis will explore the different considerations needed to introduce Differential Privacy for Biostatistics.
 
-### Potential Research Questions: 
+### Potential Research Questions:
 1. What is sensitive data?
  * During a presentation earlier this year, I had someone ask me the question: "DP may protect sensitive information, but at what stage does it become legally sufficient?"
  * From past experience, I know that as long as a client demonstrates some effort on their part to have protected personal information (as a data controller or processor) they are not found liable to charges realted to negligence. Not so long as they are proven to have violated a GDPR article, or some other legally defined right, on principle.
@@ -26,7 +26,7 @@ Differential Privacy Project in R
  * The current dataset I have access to has some 5000 patients and some 900 patient-features.
  * Some interesting columns are: age, sex, survey data, blood tests, drugs being taken, patient health scores over the course of up to 12 months since the start of treatment. 
  * Both continuous and catagorical variables are at work.
- * Not all patients are the same, different variables are relevant to specific patients. Therefore, missing data is fairly common.
+ * Not all patients are the same, different variables are relevant to specific patients. Therefore, **missing** data is fairly common.
  * More data may be on the way, as the project continues to mature. It is therefore, a good idea to avoid hard-coding the approach here.
 3. How to pick a DP mechanism?
  * Traditionally, there have been 2-3 mechanisms widely in use:
