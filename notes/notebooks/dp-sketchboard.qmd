@@ -1,0 +1,105 @@
+---
+title: "dp-compare"
+author: "Ahmet Akkoc"
+format: docx
+editor: visual
+jupyter: ir
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+# Libraries
+library(diffpriv) #diffpriv
+library(tidyverse) #Standard for Data Science
+library(tidymodels) #tidyverse extension
+library(survival) #survival analysis
+library(dplyr)
+library(tidyr)
+
+#Density Estimation
+library(kde1d)
+library(overlapping)
+library(infotheo)
+
+# Loading Data
+DF_Biobank <- read.csv('data/sample.csv',sep = ";")
+Biobank <- as_tibble(file)
+
+print(
+paste('Visits in Dataset: ',dim(Biobank)[1],'Columns per patient: ',dim(Biobank)[2]))
+
+# Preprocessing
+Biobank$sex <- as.factor(Biobank$sex)
+levels(Biobank$sex) <- c('Male','Female')
+
+head(Biobank)
+
+
+```
+
+```{r}
+
+#names(Biobank)
+```
+
+```{r}
+#ggplot(Biobank, aes(x=sex,y=sdai_m6)) +
+#  geom_boxplot()
+```
+
+```{r}
+plot <- ggplot(Biobank, aes(x=sdai_m12, color=sex)) +
+  geom_density()
+```
+
+```{r}
+X1 <- Biobank %>% filter(sex == 'Male') %>% select(sdai_m12)
+X2 <- Biobank %>% filter(sex == 'Female') %>% select(sdai_m12)
+#as.matrix(X1)
+fit1 <- kde1d(as.matrix(X1))
+fit2 <- kde1d(as.matrix(X2))
+d1 <- dkde1d(0, fit1)
+d2 <- dkde1d(0, fit2)
+
+P1<-(fit1$grid_points)
+P2<-(fit2$grid_points)
+#d1
+x <- list(X1=P1,X2=P2)
+plot(fit1)
+plot(fit2)
+abs_diff <- overlap(x,plot=TRUE)
+abs_diff
+```
+
+```{r}
+#mutinformation(Xbefore, Xafter, method="emp")
+```
+
+```{r}
+ggplot(Biobank, aes(x=cohort_name)) +
+  geom_boxplot()
+```
+
+Preprocessing
+
+```{r}
+#Preprocessing
+baselineCovariates <- c('antiCCP', 'current_smoker_latest',
+       'sjc28_m0', 'tjc28_m0','pga_m0', 'crp_m0','ega_m0','pain_m0',
+        'sex','erosive_status_baseline','haq_m0','fatigue_m0',
+        'age',
+        'Igm_rf')
+```
+
+```{r}
+table(Biobank$sex)
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).

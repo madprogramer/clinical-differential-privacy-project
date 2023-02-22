@@ -3,3 +3,6 @@ early-dp-pipeline.pptx
 img/
 *.rdata
 .Rproj.user
+*.xlsx
+data/sample.csv
+.Rhistory

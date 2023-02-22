@@ -188,7 +188,7 @@ D <- (head(DF_Biobank)) ##
 n<-nrow(D)  ## dataset size
 
 mechanism <- DPMechLaplace(target = f, sensitivity = 80/n, dims = 1)
-pparams <- DPParamsEps(epsilon = 1.25)
+pparams = DPParamsEps(epsilon = 5)
 
 r <- releaseResponse(mechanism, privacyParams = pparams, X = D)
 
