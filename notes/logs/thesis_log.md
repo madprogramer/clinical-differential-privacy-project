@@ -8,9 +8,9 @@ See https://github.com/madprogramer/clinical-differential-privacy-project/issues
 * TODO: 3 Paragraphs: Setting the territory (domain and problem), Related problems (medical analysis on DP-data for minority groups), What we want to do (research questions, how much does DP impact X or Y; also talk about selecting sensitive attributes and impactful covariates). 
 * TODO: Literature
 * TODO: SEND TO RAUL
-* TODO: Reading needed on Local Differential Privacy vs. DP on Individuals
-* TODO: Swedish data will be requested after 
-* TODO: Ask about cohort groups
+* TODO LATER: Reading needed on Local Differential Privacy vs. DP on Individuals
+* TODO LATER: Swedish data will be requested after follow-up
+* TODO LATER: Ask about cohort groups
 
 2023-02-17:
 
