@@ -29,8 +29,8 @@ library(overlapping)
 library(infotheo)
 
 # Loading Data
-DF_Biobank <- read.csv('data/sample.csv',sep = ";")
-Biobank <- as_tibble(file)
+DF_Biobank <- read.csv('../../data/sample.csv',sep = ";")
+Biobank <- as_tibble(DF_Biobank)
 
 print(
 paste('Visits in Dataset: ',dim(Biobank)[1],'Columns per patient: ',dim(Biobank)[2]))

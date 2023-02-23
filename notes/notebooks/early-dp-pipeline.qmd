@@ -92,7 +92,7 @@ library(dplyr)
 library(tidyr)
 
 # Loading Data
-load('data/sample.rdata')
+load('../../data/sample.rdata')
 DF_Biobank <- as_tibble(johan_dt_relevant_biobank_anon)
 
 print(
