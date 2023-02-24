@@ -10,13 +10,23 @@ Differential Privacy Project in R
 
 ## Project Info:
 
+## Project Info:
+
 ### Project Title: Studying the Suitability of Differential Privacy for Biostatistics
 
-#### Background: Epidemiology helps many clinicians and researchers to understand the distribution, patterns and determinants of health and disease conditions. However, a challenge exists in the form of patient data confidenciality (PDC). PDC means limited access to resources and data, as well as difficulty in replicating results. Differential Privacy (DP) can remedy this, by making data less identifyable.
+#### Background: Epidemiology helps many clinicians and researchers to understand the distribution, patterns and determinants of health and disease conditions. However, a challenge exists in the form of patient data confidenciality (PDC). PDC means limited access to resources and data, as well as difficulty in replicating results. I seek to ue Differential Privacy (DP) can remedy this, by making data less identifiable.
 
 #### Related Work: The framework of Differential Privacy was laid forth by Dwork et al (2013). There is existing work which has attempted to incorporate DP into public health. Santos-Lozada et al. (2020) and Kurz et al. (2022) have examined a particular challenge in DP, where minority groups in healthcare may see disenfranchisment, in the form of overestimated mortality rates and declining Medicaid participation, respectfully. Another challenge is the case of missing data which is particularly common within the medical domain. Missing data, when not missing completely at random, can be quite revealing of the patients in the dataset and therefore warants special consideration in DP treatments (Das et al., 2022).
 
-#### Our Approach: This thesis will explore the different considerations needed to introduce Differential Privacy for Biostatistics. In particular, we advocate for the use of DP in privatizing research datasets, so that these datasets may later be re-usable for decision making at a clinical level. Thus, the healthcare professional should still maintain PDC with their patient, having access to said patient's precise data; only being able compare and contrast their patient's data against DP research data. Our goal is to demonstrate the feasibility of a DP process that is both suitable in terms of utility for the clinician while not falling into any privacy-comprimising pitfalls.
+#### My Approach: This thesis will explore the different considerations needed to introduce Differential Privacy for Biostatistics. In particular, I advocate for the use of DP in privatizing research datasets, so that these datasets may later be re-usable for decision making at a clinical level. Thus, the healthcare professional should still maintain PDC with their patient, having access to said patient's precise data; only being able compare and contrast their patient's data against DP research data. My goal is to demonstrate the feasibility of a DP process that is both suitable in terms of utility for the clinician while not falling into any privacy-compromising pitfalls.
+
+* RQ1: How do we determine what is sensitive data, and how can we estimate its sensitivity?
+
+* RQ2: How can we handle multivariate data of different types? What set of mechanisms and parameters yield a good utility/privacy trade-off?
+
+* RQ3: How do we apply DP mechanisms where missing data is common? 
+
+* RQ4: Does the noise introduced by DP affect the utility of minorities or underrepresented groups? How much noise can be added so that utility is not lost for these groups?
 
 #### References:
 
