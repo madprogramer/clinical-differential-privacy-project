@@ -14,7 +14,7 @@ Differential Privacy Project in R
 
 ### Project Title: Studying the Suitability of Differential Privacy for Biostatistics
 
-#### Background: Epidemiology helps many clinicians and researchers to understand the distribution, patterns and determinants of health and disease conditions. However, a challenge exists in the form of patient data confidenciality (PDC). PDC means limited access to resources and data, as well as difficulty in replicating results. I seek to ue Differential Privacy (DP) can remedy this, by making data less identifiable.
+#### Background: Epidemiology helps many clinicians and researchers to understand the distribution, patterns and determinants of health and disease conditions. However, a challenge exists in the form of patient data confidenciality (PDC). PDC means limited access to resources and data, as well as difficulty in replicating results. I seek to use Differential Privacy (DP) can remedy this, by making data less identifiable.
 
 #### Related Work: The framework of Differential Privacy was laid forth by Dwork et al (2013). There is existing work which has attempted to incorporate DP into public health. Santos-Lozada et al. (2020) and Kurz et al. (2022) have examined a particular challenge in DP, where minority groups in healthcare may see disenfranchisment, in the form of overestimated mortality rates and declining Medicaid participation, respectfully. Another challenge is the case of missing data which is particularly common within the medical domain. Missing data, when not missing completely at random, can be quite revealing of the patients in the dataset and therefore warants special consideration in DP treatments (Das et al., 2022).
 

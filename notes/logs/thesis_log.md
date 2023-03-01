@@ -2,15 +2,37 @@ Action Items:
 
 See https://github.com/madprogramer/clinical-differential-privacy-project/issues .
 
-2023-02-22:
-
-* TODO: Problem statement before Friday
-* TODO: 3 Paragraphs: Setting the territory (domain and problem), Related problems (medical analysis on DP-data for minority groups), What we want to do (research questions, how much does DP impact X or Y; also talk about selecting sensitive attributes and impactful covariates). 
-* TODO: Literature
-* TODO: SEND TO RAUL
-* TODO LATER: Reading needed on Local Differential Privacy vs. DP on Individuals
+2023-02-28:
+* Talk about imputation paper
+  * Good for privacy, bad for utility?
+  * Worth investigating, but come back to this in the future
+  * Keep attribute predictions indepedent
+* Read through Desfontain, is there anything useful in the reading list 
+  * https://desfontain.es/privacy/differential-privacy-reading-list.html
+* DO NOT DP-IMPUTE!
+  * You can impute on time-series.
+* Tips for experiments:
+  * Read some papers on synthetic data
+  * Machine learning experiments are still relevant
+  * Please also focus on sub-populations (minority groups)
+* Expect little output over the course of these next 2 weeks.
+* TODO: focus on the method to analyze privacy and utility, not the synthetic data process
+  * https://www.usenix.org/system/files/sec22summer_stadler.pdf 
+* TODO: Design experiments
+* TODO: Reading needed for understanding dimensionality of response (1 vs. n)
 * TODO LATER: Swedish data will be requested after follow-up
 * TODO LATER: Ask about cohort groups
+
+2023-02-24:
+* Reading needed on Local Differential Privacy vs. DP on Individuals (DONE)
+* https://desfontain.es/privacy/more-useful-results-dp.html
+
+2023-02-23:
+
+* Problem statement before Friday
+* 3 Paragraphs: Setting the territory (domain and problem), Related problems (medical analysis on DP-data for minority groups), What we want to do (research questions, how much does DP impact X or Y; also talk about selecting sensitive attributes and impactful covariates). 
+* Literature
+* SEND TO RAUL for Review
 
 2023-02-17:
 
