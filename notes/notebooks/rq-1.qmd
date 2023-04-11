@@ -1,0 +1,193 @@
+---
+title: "dp-compare"
+author: "Ahmet Akkoc"
+format: docx
+editor: visual
+jupyter: ir
+---
+
+# **RQ1: How do we determine what is sensitive data, and how can we estimate its sensitivity?**
+
+Input: 2 datasets, a list of co-occurring individuals, a set of features/covariates
+
+Output: A projection of the patient features into a smaller space. Further interpretation is needed :)
+
+## Loading
+
+```{r}
+# Libraries
+#library(diffpriv) #diffpriv
+library(tidyverse) #Standard for Data Science
+library(tidymodels) #tidyverse extension
+library(survival) #survival analysis
+library(dplyr)
+library(tidyr)
+library(Rtsne) #TSNE
+
+# Loading Data
+Biobank <- as_tibble(read_csv2('../../data/sample.csv',guess_max = 10000))
+
+#print(paste('Visits in Dataset: ',dim(Biobank)[1],'Columns per patient: ',dim(Biobank)[2]))
+
+# Preprocessing
+#Biobank$sex <- as.factor(Biobank$sex)
+#levels(Biobank$sex) <- c('Male','Female')
+
+#head(Biobank)
+
+
+```
+
+## Exploration
+
+```{r}
+
+head(names(Biobank))
+```
+
+### Separate Cohorts
+
+```{r}
+Biobank_Primary <- Biobank |> filter(cohort_name=='TNFFIRST')
+Biobank_Secondary <- Biobank |> filter(cohort_name=='MTX')
+
+#head(Biobank)
+(Biobank_Primary)
+(Biobank_Secondary)
+```
+
+### Sample Selection
+
+```{r}
+
+sample_set <- c(10, 18, 32, 43, 58, 61, 101, 109, 119, 127) #shared patients
+
+Sample_Biobank <- Biobank |> filter(patient_id %in% sample_set)
+
+Biobank_Primary <- Sample_Biobank |> filter(cohort_name=='TNFFIRST')
+Biobank_Secondary <- Sample_Biobank |> filter(cohort_name=='MTX')
+
+head(Biobank_Primary)
+head(Biobank_Secondary)
+```
+
+## Covariate (Feature) Selection
+
+```{r}
+covariate_set <- c('anticcp', 'current_smoker_latest',
+       'sjc28_m0', 'tjc28_m0','pga_m0', 'crp_m0','ega_m0','pain_m0',
+        'sex','erosive_status_baseline','haq_m0','fatigue_m0',
+        'age',
+        'igm_rf')
+
+#Biobank |> select(all_of(c(covariate_set,'patient_id'))) |> head()
+
+Biobank_Primary <- Biobank_Primary |> select(all_of(c(covariate_set,'patient_id','cohort_name')))
+Biobank_Secondary <- Biobank_Secondary |> select(all_of(c(covariate_set,'patient_id','cohort_name')))
+
+Biobank_Primary |> head()
+Biobank_Secondary |> head()
+```
+
+## TSNE
+
+### Combine
+
+```{r}
+
+Biobank_Compare <- rbind(Biobank_Primary, Biobank_Secondary)
+Biobank_Compare
+```
+
+### Treat Missing
+
+```{r}
+
+formula <- reformulate(termlabels = '.', response = 'cohort_name')
+formula
+
+imputation_recipe <- recipe(formula, data = Biobank_Compare, retain=TRUE) %>%                            #Set the formula
+  step_impute_mode('current_smoker_latest') %>%                                  #SINGLE IMPUTATION on Smoking Status
+  step_impute_mean(all_numeric_predictors())       %>%
+  step_mutate_at( all_numeric_predictors(), fn = ~tidyr::replace_na(., -1) )  %>% #Handle numeric NAs    
+  #step_normalize(all_numeric_predictors()) %>%                                   #Normalize covaritates
+  step_unknown(all_nominal_predictors(), new_level = "NO_RECORD_AVAILABLE")  %>% #Handle 
+  step_dummy(all_nominal_predictors(), one_hot = FALSE) #%>%                      #Handle Categoricals with C-1 cols (go feature density!)
+  #step_zv(all_predictors())  
+```
+
+```{r}
+impute_prep <- prep(imputation_recipe,retain=TRUE)
+Biobank_Compare_Juiced<-juice(impute_prep)
+head(Biobank_Compare_Juiced)
+```
+
+### Feature Label Separation
+
+```{r}
+Biobank_Compare_Features <- Biobank_Compare_Juiced |> select(-c(patient_id,cohort_name)) 
+Biobank_Compare_Labels <- Biobank_Compare_Juiced |> select(c(patient_id,cohort_name)) 
+
+Biobank_Compare_Features
+Biobank_Compare_Labels
+
+#DF_Features<-juiced %>% select(-c(das28_m6broad,das28_remission_m6broad_X1))
+# Biobank_Features %>% 
+#DF_DAS28 <- juiced$das28_m6broad
+#DF_DAS28_REMISSION <- juiced$das28_remission_m6broad_X1
+```
+
+### Compute TSNE
+
+```{r}
+
+set.seed(1001)
+tsne_results <- Rtsne(Biobank_Compare_Features, perplexity=3, check_duplicates = FALSE)
+```
+
+```{r}
+
+  
+Biobank_Compare_Results <- cbind(Biobank_Compare_Features,
+                                 as_tibble(tsne_results$Y, .name_repair='universal'),
+                                 Biobank_Compare_Labels
+                                 )
+
+ggplot(Biobank_Compare_Results, aes(x=...1, y=...2)) + geom_point() + 
+  ggtitle("TSNE projection of features") +
+  xlab("TSNE_X") + ylab("TSNE_Y")
+
+ggplot(Biobank_Compare_Results, aes(x=...1, y=...2,color=factor(patient_id))) + geom_point() +
+  scale_color_brewer(palette="Spectral") +
+  ggtitle("TSNE projections of co-occurring patients") + labs(color = "Patient ID") +
+  xlab("TSNE_X") + ylab("TSNE_Y")
+
+ggplot(Biobank_Compare_Results, aes(x=...1, y=...2,shape=cohort_name)) + geom_point() +
+  ggtitle("TSNE projections of separate cohorts") + labs(shape = "Cohort") +
+  xlab("TSNE_X") + ylab("TSNE_Y")
+
+ggplot(Biobank_Compare_Results, aes(x=...1, y=...2,color=factor(patient_id),shape=cohort_name)) + geom_point() + scale_color_brewer(palette="Spectral") +
+  ggtitle("TSNE projections of patients and cohorts") + labs(color = "Patient ID") +
+  xlab("TSNE_X") + ylab("TSNE_Y") + labs(shape = "Cohort",color = "Patient ID")
+```
+
+```{r}
+
+#Numeric interpretation of T-SNE
+#https://www.rdocumentation.org/packages/Rtsne/versions/0.16/topics/Rtsne
+
+tsne_results$costs  # The cost for every object after the final iteration
+tsne_results$itercosts # The total costs (KL-divergence) for all objects in every 50th + the last iteration
+```
+
+```{r}
+# https://distill.pub/2016/misread-tsne/
+
+# "The idea of SNE and t-SNE is to place neighbors close to each other, (almost) completly ignoring the global structure."
+
+# Cluster sizes in a t-SNE plot mean nothing, cluster count is important..
+# Distances between clusters (might) not mean anything
+# For topology, you may need more than one plot
+
+# Conclusion: Interpreting t-SNE mathematically will require sampling results at a few perplexity values.
+```

@@ -2,6 +2,69 @@ Action Items:
 
 See https://github.com/madprogramer/clinical-differential-privacy-project/issues .
 
+2023-03-28:
+* Geo-indish paper
+  * definition: 
+  * A note on the unit of measurement
+  * Discretization -> Can be used to map to a grid.
+  * Proof using polar coordinates, difficult to generalise to 3+ dimensions
+* Idea: k-nearest neighbour attack
+  * If x in dataset D, is a match of v from dataset D2 
+  * d = Sum squares of x_i - v_i for all i in M features, skipping j if either x_j or v_j is unknown.
+  * Alternatively d = sum of (x_i != NA)(v_i != NA)(x_i - v_i)(x_i - v_i)
+
+* Picking 5 variables we can map to 2D projection, and then adding noise to it?
+
+* Two levels here: We cannot release a full dataset,
+  * yes we can.
+  * Geo-indishtinguability makes an argument for it.
+  * Acknowledges that correlations are ignored.
+    * HMMs can help assess risk.
+
+* Raul suggestion: Stick to visualization only, that is a type of aggregate to focus on.
+* Raul suggestion: Don't call it differential privacy, just call it noise. Netflix example.
+
+* #1: Stick to clustering algorithms & visualization.
+* #2: Release a model instead of data itself.
+
+* Example: Inference from age on diagnosis. Try to keep it relevant and simple.
+
+* For Raul: Ask what is the issue with releasing full data set.
+
+
+* IMPORTANT:
+https://dl.acm.org/doi/pdf/10.1145/2857705.2857708
+
+* interactive vs. non-interactive
+
+2023-03-22:
+* https://docs.google.com/document/d/16SQIQYUeT5XIVROm2xb5vTpRjnQxrZtbSB2f83jqHQs/edit#
+* Discussed issue with publishing entire dataset (?)
+  * There are many ways to side-step this. 
+* Discussed issue with membership-inference attacks
+  * ARM supports scikit, Tensorflow is focussed on neural networks.
+* BIG Suggestion from Raul:
+  * Can we generalize geo-indishtinguishability to feature spaces?
+    * If we can, then that solves both RQ1 and RQ2.
+    * Primary use-case wuold be machine learning (supervised training or unsupervised clustering).
+    * TODO: (Thursday) Design k-nearest neighbour attack
+    * TODO: (Friday) Thesis Writing, also good for keeping track of things.
+    * TODO: (Saturday) Redefine geo-indishtinguability DP for feature-spaces. https://www.eecis.udel.edu/~ruizhang/CISC859/S17/Paper/p26.pdf
+    * TODO: (Sunday) Design a mechanism for purturbing the feature-location of data (ignore categoricals for now)
+    * TODO: (Monday) Alternate clustering strategies
+    * TODO: (Tuesday) Alternate distance metrics
+
+2023-03-16:
+* Talk about new dataset
+* P(M(D) in O) <= P(M(D') in O) * e^epilon  
+* Membership Inference for Training Datasets is a good way to frame it.
+  * READ MEMBERSHIP INFERENCE PAPERS FROM RAUL.
+* RQ 1: Does a concrete dataset have vulnerable data.
+* Distance Metrics
+* Swedish data not available yet, but perhaps un-needed.
+* For next time: Come with Differential Privacy for Multivariate (RQ2)
+* Reading needed for understanding dimensionality of response (1 vs. n)
+
 2023-02-28:
 * Talk about imputation paper
   * Good for privacy, bad for utility?
@@ -16,12 +79,10 @@ See https://github.com/madprogramer/clinical-differential-privacy-project/issues
   * Machine learning experiments are still relevant
   * Please also focus on sub-populations (minority groups)
 * Expect little output over the course of these next 2 weeks.
-* TODO: focus on the method to analyze privacy and utility, not the synthetic data process
+* Focus on the method to analyze privacy and utility, not the synthetic data process
   * https://www.usenix.org/system/files/sec22summer_stadler.pdf 
-* TODO: Design experiments
-* TODO: Reading needed for understanding dimensionality of response (1 vs. n)
-* TODO LATER: Swedish data will be requested after follow-up
-* TODO LATER: Ask about cohort groups
+* Design experiments, for next time.
+* Asked about cohort groups, learned separation.
 
 2023-02-24:
 * Reading needed on Local Differential Privacy vs. DP on Individuals (DONE)
