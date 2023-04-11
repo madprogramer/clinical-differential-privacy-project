@@ -8,7 +8,7 @@ test_that("Sensitivity Test", {
 
   # Read our sample dataset as a data frame
   #DF_Biobank <- read.csv('../../data/sample.csv',sep = ";")
-  DF_Biobank <- readr::read_csv2('../../data/sample.csv')
+  DF_Biobank <- readr::read_csv2('../../data/sample.csv',guess_max = 10000)
 
   # Filter
   DF_Biobank <- DF_Biobank %>% dplyr::filter(cohort_name == 'TNFFIRST')
