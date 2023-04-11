@@ -1,0 +1,117 @@
+---
+title: "dp-compare"
+author: "Ahmet Akkoc"
+format: docx
+editor: visual
+jupyter: ir
+---
+
+# **Co**mparing a Recovering Patient and a non-Recovering One
+
+## Loading
+
+```{r}
+# Libraries
+#library(diffpriv) #diffpriv
+library(tidyverse) #Standard for Data Science
+library(tidymodels) #tidyverse extension
+library(survival) #survival analysis
+library(dplyr)
+library(tidyr)
+library(Rtsne) #TSNE
+
+# Loading Data
+Biobank <- as_tibble(read_csv2('../../data/sample.csv',guess_max = 10000))
+
+#print(paste('Visits in Dataset: ',dim(Biobank)[1],'Columns per patient: ',dim(Biobank)[2]))
+
+# Preprocessing
+#Biobank$sex <- as.factor(Biobank$sex)
+#levels(Biobank$sex) <- c('Male','Female')
+
+#head(Biobank)
+
+
+```
+
+## Exploration
+
+```{r}
+
+head(names(Biobank))
+```
+
+### Separate Cohorts
+
+```{r}
+Biobank_Primary <- Biobank |> filter(cohort_name=='TNFFIRST')
+
+#(Biobank_Primary)
+```
+
+### Sample Selection
+
+```{r}
+
+sample_set <- c(10, 18, 32, 43, 58, 61, 101, 109, 119, 127) #shared patients
+
+Sample_Biobank <- Biobank |> filter(patient_id %in% sample_set)
+
+Biobank_Primary <- Sample_Biobank |> filter(cohort_name=='TNFFIRST')
+#Biobank_Secondary <- Sample_Biobank |> filter(cohort_name=='MTX')
+
+head(Biobank_Primary)
+#head(Biobank_Secondary)
+```
+
+## Covariate (Feature) Selection
+
+```{r}
+covariate_set <- c('age', 'das28_m0', 'das28_m3', 'das28_m6', 'das28_m12')
+
+#Biobank |> select(all_of(c(covariate_set,'patient_id'))) |> head()
+
+Biobank_Primary <- Biobank_Primary |> select(all_of(c(covariate_set,'patient_id','cohort_name')))
+
+
+Biobank_Primary |> head()
+```
+
+## Convert to Time Series
+
+```{r}
+
+timestamps <- rep(0:12, times=2)
+patients <- rep(1:2, each=13)
+
+id_A <- 2
+sample_A <- c(
+  rep(Biobank_Primary$das28_m0[[id_A]],3),
+  rep(Biobank_Primary$das28_m3[[id_A]],3),
+  rep(Biobank_Primary$das28_m6[[id_A]],6),
+  rep(Biobank_Primary$das28_m12[[id_A]],1)
+  ) 
+
+id_B <- 7
+sample_B <- c(
+  rep(Biobank_Primary$das28_m0[[id_B]],3),
+  rep(Biobank_Primary$das28_m3[[id_B]],3),
+  rep(Biobank_Primary$das28_m6[[id_B]],6),
+  rep(Biobank_Primary$das28_m12[[id_B]],1)
+  ) 
+
+samples <- c(sample_A, sample_B)
+print(samples)
+
+timeseries <- tibble(timestamp=timestamps, patient=patients, das28=samples)
+
+timeseries |> head()
+```
+
+## Plot
+
+```{r}
+ggplot(timeseries, aes(x=timestamp, y=das28, group=factor(patient), color=factor(patient))) + geom_path() + geom_point() + 
+  ggtitle("Change in the Condition of Two Patients Over Time") +
+  xlab("Month") + ylab("DAS28 (Lower is Better)")
+```
