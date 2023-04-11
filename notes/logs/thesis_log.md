@@ -2,6 +2,40 @@ Action Items:
 
 See https://github.com/madprogramer/clinical-differential-privacy-project/issues .
 
+2023-04-11:
+* Part I: Breakthrough: Differentially Private Multi-Party Data Release for Linear Regression
+  * A paper on differentially private dataset release.
+    * Counter-argument: The Netflix paper deals with a similarity metric. High-dimensionality and spearse data allows for identifiable due to uniqueness (i.e. fingerprinting). Linking attacks still possible if we have a neighbouring dataset.
+    * Imagine a set-up of pages: one noisy, one less noisy. Probabilistic attacks are very powerful against high-dimensional data.
+      * Counter-counter argument: The RMGM-OLS.
+  * Two methods:
+    * DGM-OLS: Gaussian Noise
+    * RMGM-OLS: Share a Bernoulli Matrix with Recipients who then add Gaussian Noise to a linear combination of the original values.  
+  * Related work section covers very recent literature :)
+  * Highlights
+    * Assumption of iid
+    * 0-1 Normalization
+    * All variables are **numeric/continuous**
+      * Opportunity for us is to explore the composition with an Exponential Mechanism for Nominal Variables  
+    * Bounded Sensitivity (23:20 https://www.youtube.com/watch?v=j10LJYRbNCc&list=PLSIUOFhnxEiDoTNvhZWIm1PNBAFJWUxU8&index=7&t=3114s)
+    * Sensitivity is estimated based on the maximum value in the local center for the given attribute.
+
+* Part II: Reframing My Project
+  * As baseline, I want the approach to be dataset-releasing.
+    * Other ideas should only be extensions. We already have plenty of material to go off of. 
+  * Thesis writing going well :) 
+  * Thesis as an application of DP in RA.
+    * Can differential privacy enable researchers to gain realistic insights from clinical RA data 
+  * Overview of Chapters.
+    * Issue I am working on right now.
+  * Implemented an imitation of paper using 0-1 normalization on age, das28 scores.
+  * Ask for advice on experiment design.
+    * Paper focusses on proving utility.
+    * Raul Suggestion: Focussing on Subpopulations
+
+  * SEND RAUL DATASET RELEASE PAPERs
+  * University of San Diego: Graph Connection release with DP. Random Permutations.
+ 
 2023-03-28:
 * Geo-indish paper
   * definition: 
